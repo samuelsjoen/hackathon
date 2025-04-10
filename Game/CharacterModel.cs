@@ -1,8 +1,8 @@
-public class CharacterHandler
+public class CharacterModel
 {
     public List<Character> Characters { get; set; } = new List<Character>();
 
-    public CharacterHandler()
+    public CharacterModel()
     {
         SetupCharacters();
     }

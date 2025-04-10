@@ -1,18 +1,47 @@
-public class LocationHandler
+public class LocationModel
 {
-    private List<Location> Locations = new List<Location>();
-    private CharacterHandler CharacterHandler;
+    private Location currentLocation;
 
-    public LocationHandler(CharacterHandler characterHandler)
+    public Location CurrentLocation
     {
-        CharacterHandler = characterHandler;
+        get
+        {
+            if (currentLocation == null)
+            {
+                throw new InvalidOperationException("CurrentLocation is not set.");
+            }
+            return currentLocation;
+        }
+
+        set
+        {
+            currentLocation = value;
+        }
+    }
+    private List<Location> Locations = new List<Location>();
+    private CharacterModel CharacterModel;
+
+    public LocationModel(CharacterModel characterModel)
+    {
+        CharacterModel = characterModel;
         SetupLocations();
+    }
+
+    public Location GetLocation(string name)
+    {
+        var location = Locations.FirstOrDefault(l => l.Name != null && l.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        if (location == null)
+        {
+            throw new InvalidOperationException($"Location with name '{name}' not found.");
+        }
+        return location;
     }
 
     public void SetupLocations()
     {
         Location boatDock = new Location();
         Locations.Add(boatDock);
+        CurrentLocation = boatDock;
         Location village = new Location();
         Locations.Add(village);
         Location church = new Location();
@@ -115,12 +144,6 @@ public class LocationHandler
             new List<Item>(),
             new List<Character>(),
             new List<Location>()
-            {
-                boatDock,
-                church,
-                pub,
-                manorHouse,
-            }
         );
         boatDock.Initialize(
             "Boat Dock",
@@ -199,23 +222,14 @@ public class LocationHandler
             },
             new List<Character>()
             {
-                CharacterHandler.GetCharacter("Fisherman"),
+                CharacterModel.GetCharacter("Fisherman"),
             },
             new List<Location>()
-            {
-                village
-            }
         );
-        Locations.Add(boatDock);
-    }
-
-    public Location GetLocation(string name)
-    {
-        var location = Locations.FirstOrDefault(l => l.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-        if (location == null)
-        {
-            throw new InvalidOperationException($"Location with name '{name}' not found.");
-        }
-        return location;
+        village.ConnectedLocations.Add(boatDock);
+        village.ConnectedLocations.Add(church);
+        village.ConnectedLocations.Add(pub);
+        village.ConnectedLocations.Add(manorHouse);
+        boatDock.ConnectedLocations.Add(village);
     }
 }

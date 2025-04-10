@@ -1,13 +1,12 @@
 public class Item
 {
-    string Title { get; set; }
-    string Description { get; set; }
+    public string Name { get; }
+    public string Description { get;}
+    public bool Obtainable { get;}
 
-    bool Obtainable { get; set; }
-
-    public Item(string title, string description, bool obtainable)
+    public Item(string name, string description, bool obtainable)
     {
-        this.Title = title;
+        this.Name = name;
         this.Description = description;
         this.Obtainable = obtainable;
     }

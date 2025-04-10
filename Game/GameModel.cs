@@ -1,13 +1,13 @@
 public class GameModel
 {
-    public Detective Detective;
-    public LocationHandler LocationHandler;
-    public CharacterHandler CharacterHandler;
+    public Detective Detective { get; set; }
+    public LocationModel LocationModel { get; set; }
+    public CharacterModel CharacterModel { get; set; }
 
     public GameModel()
     {
         Detective = new Detective();
-        CharacterHandler = new CharacterHandler();
-        LocationHandler = new LocationHandler(CharacterHandler);
+        CharacterModel = new CharacterModel();
+        LocationModel = new LocationModel(CharacterModel);
     }
 }
