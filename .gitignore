@@ -1,0 +1,41 @@
+# Ignore build output directories
+bin/
+obj/
+
+# Ignore user-specific files
+*.user
+*.suo
+*.vs/
+.vscode/
+
+# Ignore Docker-related files
+**/Dockerfile*
+**/.dockerignore
+
+# Ignore NuGet packages
+*.nupkg
+*.snupkg
+packages/
+*.nuget.g.props
+*.nuget.g.targets
+
+# Ignore debug and runtime files
+*.pdb
+*.exe
+*.dll
+*.runtimeconfig.json
+*.deps.json
+
+# Ignore editor-specific files
+*.editorconfig
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore Git-specific files
+!.gitignore
