@@ -22,19 +22,7 @@ public class GameController
             bool visited = false;
             while (GameModel.LocationModel.CurrentLocation == currentLocation)
             {
-                if (!visited)
-                {
-                    GameView.AddToPrintQueue(currentLocation.Description);
-                    visited = true;
-                }
-                GameView.AddToPrintQueue("What would you like to do?");
-                GameView.AddToPrintQueue("1. Move to another location");
-                GameView.AddToPrintQueue("2. Examine the location");
-                if (currentLocation.Characters != null && currentLocation.Characters.Count > 0)
-                {
-                    GameView.AddToPrintQueue("3. Talk to a character");
-                }
-                GameView.Print();
+                GameView.PrintLocationMenu(visited);
                 String input = Console.ReadLine();
                 if (input == "1")
                 {
@@ -48,10 +36,6 @@ public class GameController
                 {
                     HandleCharacters(currentLocation);
                 }
-                else
-                {
-                    GameView.PrintInvalidInput();
-                }
             }
         }
     }
@@ -61,13 +45,7 @@ public class GameController
     {
         while (true)
         {
-            GameView.AddToPrintQueue("Where would you like to go?");
-            GameView.AddToPrintQueue($"0. Cancel");
-            for (int i = 0; i < currentLocation.ConnectedLocations.Count; i++)
-            {
-                GameView.AddToPrintQueue($"{i + 1}. {currentLocation.ConnectedLocations[i].Name}");
-            }
-            GameView.Print();
+            GameView.PrintMoveMenu();
             String input = Console.ReadLine();
             if (input == "0")
             {
@@ -78,10 +56,6 @@ public class GameController
                 GameModel.LocationModel.CurrentLocation = currentLocation.ConnectedLocations[index - 1];
                 break;
             }
-            else
-            {
-                GameView.PrintInvalidInput();
-            }
         }
     }
 
@@ -89,14 +63,12 @@ public class GameController
     {
         while (true)
         {
-            GameView.AddToPrintQueue(currentLocation.ExamineDescription);
-            GameView.AddToPrintQueue("What would you like to examine");
-            GameView.AddToPrintQueue($"0. Cancel");
-            for (int i = 0; i < currentLocation.Interactables.Count; i++)
+            GameView.PrintExamineMenu();
+            if (currentLocation.Interactables.Count == 0)
             {
-                GameView.AddToPrintQueue($"{i + 1}. {currentLocation.Interactables[i].Name}");
+                Console.ReadKey(true);
+                break;
             }
-            GameView.Print();
             String input = Console.ReadLine();
             if (input == "0")
             {
@@ -105,17 +77,13 @@ public class GameController
             else if (int.TryParse(input, out int index) && index > 0 && index <= currentLocation.Interactables.Count)
             {
                 Item item = currentLocation.Interactables[index - 1];
-                GameView.AddToPrintQueue(item.Description);
+                GameView.PrintItemInfo(item);
                 if (item.Obtainable)
                 {
-                    GameView.AddToPrintQueue($"You have obtained {item.Name}.");
                     GameModel.Detective.Inventory.Add(item);
+                    GameModel.LocationModel.CurrentLocation.Interactables.Remove(item);
                 }
-                break;
-            }
-            else
-            {
-                GameView.PrintInvalidInput();
+                Console.ReadKey(true);
             }
         }
     }
@@ -124,13 +92,7 @@ public class GameController
     {
         while (true)
         {
-            GameView.AddToPrintQueue("Who would you like to talk to?");
-            GameView.AddToPrintQueue($"0. Cancel");
-            for (int i = 0; i < currentLocation.Characters.Count; i++)
-            {
-                GameView.AddToPrintQueue($"{i + 1}. {currentLocation.Characters[i].Name}");
-            }
-            GameView.Print();
+            GameView.PrintCharacterMenu();
             String input = Console.ReadLine();
             if (input == "0")
             {
@@ -139,28 +101,17 @@ public class GameController
             if (int.TryParse(input, out int index) && index > 0 && index <= currentLocation.Characters.Count)
             {
                 Character character = currentLocation.Characters[index - 1];
-                GameView.AddToPrintQueue(character.Description);
-                GameView.Print();
-                HandleTalk(character.Questions);
-            }
-            else
-            {
-                GameView.PrintInvalidInput();
+                GameView.PrintCharacterDescription(character);
+                HandleTalk(character.Questions, character.Name);
             }
         }
     }
 
-    private void HandleTalk(List<Question> questions)
+    private void HandleTalk(List<Question> questions, string characterName)
     {
         while (true)
         {
-            GameView.AddToPrintQueue("What would you like to ask?");
-            GameView.AddToPrintQueue($"0. Cancel");
-            for (int i = 0; i < questions.Count; i++)
-            {
-                GameView.AddToPrintQueue($"{i + 1}. {questions[i].Text}");
-            }
-            GameView.Print();
+            GameView.PrintQuestionMenu(questions);
             String input = Console.ReadLine();
             if (input == "0")
             {
@@ -169,17 +120,12 @@ public class GameController
             if (int.TryParse(input, out int index) && index > 0 && index <= questions.Count)
             {
                 Question question = questions[index - 1];
-                GameView.AddToPrintQueue(question.Answer);
-                GameView.Print();
+                GameView.PrintAnswer(characterName, question.Answer);
+                Console.ReadKey(true);
                 if (question.FollowupQuestions != null && question.FollowupQuestions.Count > 0)
                 {
-                    HandleTalk(question.FollowupQuestions);
+                    HandleTalk(question.FollowupQuestions, characterName);
                 }
-                break;
-            }
-            else
-            {
-                GameView.PrintInvalidInput();
             }
         }
     }
