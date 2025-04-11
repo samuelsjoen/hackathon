@@ -1,5 +1,7 @@
 public class CharacterModel
 {
+    public Character? selectedCharacter { get; set; }
+
     public List<Character> Characters { get; set; } = new List<Character>();
 
     public CharacterModel()

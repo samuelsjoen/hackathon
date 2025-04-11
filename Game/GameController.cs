@@ -8,9 +8,15 @@ public class GameController
         this.GameView = gameView;
     }
 
+    public void onChange()
+    {
+        GameView.Print();
+    }
+
+
     public void InitializeGame()
     {
-        GameView.PrintStartScreen();
+        onChange();
         Console.ReadKey(true);
         HandleGameLoop();
     }
@@ -19,20 +25,22 @@ public class GameController
         while (true)
         {
             Location currentLocation = GameModel.LocationModel.CurrentLocation;
-            bool visited = false;
             while (GameModel.LocationModel.CurrentLocation == currentLocation)
             {
-                GameView.PrintLocationMenu(visited);
-                String input = Console.ReadLine();
-                if (input == "1")
+                GameModel.CurrentGameState = GameState.ToDoMenu;
+                onChange();
+
+                int input = SelectOptionWithArrows(3);
+
+                if (input == 0)
                 {
                     HandleMove(currentLocation);
                 }
-                else if (input == "2")
+                else if (input == 1)
                 {
                     HandleExamine(currentLocation);
                 }
-                else if (input == "3" && currentLocation.Characters != null && currentLocation.Characters.Count > 0)
+                else if (input == 2 && currentLocation.Characters != null && currentLocation.Characters.Count > 0)
                 {
                     HandleCharacters(currentLocation);
                 }
@@ -45,15 +53,16 @@ public class GameController
     {
         while (true)
         {
-            GameView.PrintMoveMenu();
-            String input = Console.ReadLine();
-            if (input == "0")
+            GameModel.CurrentGameState = GameState.MoveMenu;
+            onChange();
+            int input = SelectOptionWithArrows(currentLocation.ConnectedLocations.Count + 1);
+            if (input == 0)
             {
                 break;
             }
-            else if (int.TryParse(input, out int index) && index > 0 && index <= currentLocation.ConnectedLocations.Count)
+            else if (input > 0 && input <= currentLocation.ConnectedLocations.Count)
             {
-                GameModel.LocationModel.CurrentLocation = currentLocation.ConnectedLocations[index - 1];
+                GameModel.LocationModel.CurrentLocation = currentLocation.ConnectedLocations[input - 1];
                 break;
             }
         }
@@ -63,26 +72,29 @@ public class GameController
     {
         while (true)
         {
-            GameView.PrintExamineMenu();
+            GameModel.CurrentGameState = GameState.ExamineMenu;
+            onChange();
             if (currentLocation.Interactables.Count == 0)
             {
                 Console.ReadKey(true);
                 break;
             }
-            String input = Console.ReadLine();
-            if (input == "0")
+            int input = SelectOptionWithArrows(currentLocation.Interactables.Count + 1);
+            if (input == 0)
             {
                 break;
             }
-            else if (int.TryParse(input, out int index) && index > 0 && index <= currentLocation.Interactables.Count)
+            else if (input > 0 && input <= currentLocation.Interactables.Count)
             {
-                Item item = currentLocation.Interactables[index - 1];
-                GameView.PrintItemInfo(item);
+                Item item = currentLocation.Interactables[input - 1];
                 if (item.Obtainable)
                 {
                     GameModel.Detective.Inventory.Add(item);
                     GameModel.LocationModel.CurrentLocation.Interactables.Remove(item);
                 }
+                GameModel.SelectedItem = item;
+                GameModel.CurrentGameState = GameState.ItemInfo;
+                onChange();
                 Console.ReadKey(true);
             }
         }
@@ -92,16 +104,18 @@ public class GameController
     {
         while (true)
         {
-            GameView.PrintCharacterMenu();
-            String input = Console.ReadLine();
-            if (input == "0")
+            GameModel.CurrentGameState = GameState.SelectCharacterMenu;
+            onChange();
+        
+            int input = SelectOptionWithArrows(currentLocation.Characters.Count + 1);
+            if (input == 0)
             {
                 break;
             }
-            if (int.TryParse(input, out int index) && index > 0 && index <= currentLocation.Characters.Count)
+            if (input > 0 && input <= currentLocation.Characters.Count)
             {
-                Character character = currentLocation.Characters[index - 1];
-                GameView.PrintCharacterDescription(character);
+                Character character = currentLocation.Characters[input - 1];
+                GameModel.CharacterModel.selectedCharacter = character;
                 HandleTalk(character.Questions, character.Name);
             }
         }
@@ -111,21 +125,50 @@ public class GameController
     {
         while (true)
         {
-            GameView.PrintQuestionMenu(questions);
-            String input = Console.ReadLine();
-            if (input == "0")
+            GameModel.CurrentGameState = GameState.QuestionMenu;
+            GameModel.SelectedQuestions = questions;
+            onChange();
+            int input = SelectOptionWithArrows(questions.Count + 1);
+            if (input == 0)
             {
                 break;
             }
-            if (int.TryParse(input, out int index) && index > 0 && index <= questions.Count)
+            if (input > 0 && input <= questions.Count)
             {
-                Question question = questions[index - 1];
-                GameView.PrintAnswer(characterName, question.Answer);
+                Question question = questions[input - 1];
+                GameModel.CurrentGameState = GameState.Answer;
+                GameModel.SelectedQuestion = question;
+                onChange();
                 Console.ReadKey(true);
                 if (question.FollowupQuestions != null && question.FollowupQuestions.Count > 0)
                 {
                     HandleTalk(question.FollowupQuestions, characterName);
                 }
+            }
+        }
+    }
+
+    public int SelectOptionWithArrows(int OptionsAmount)
+    {
+        int selectedIndex = 0;
+        GameModel.SelectedOption = 0;
+        while (true)
+        {
+            onChange();
+            ConsoleKey key = Console.ReadKey(true).Key;
+            switch (key)
+            {
+                case ConsoleKey.UpArrow:
+                    selectedIndex = (selectedIndex - 1 + OptionsAmount) % OptionsAmount; // Move up
+                    GameModel.SelectedOption = selectedIndex;
+                    break;
+                case ConsoleKey.DownArrow:
+                    selectedIndex = (selectedIndex + 1) % OptionsAmount; // Move down
+                    GameModel.SelectedOption = selectedIndex;
+                    break;
+                case ConsoleKey.Enter:
+                    GameModel.SelectedOption = selectedIndex;
+                    return selectedIndex;
             }
         }
     }
