@@ -30,7 +30,7 @@ public class GameController
                 GameModel.CurrentGameState = GameState.ToDoMenu;
                 onChange();
 
-                int input = SelectOptionWithArrows(4);
+                int input = SelectOptionWithArrows(5);
 
                 if (input == 0)
                 {
@@ -47,6 +47,10 @@ public class GameController
                 else if (input == 3)
                 {
                     HandleInventory();
+                }
+                else if (input == 4)
+                {
+                    HandleLeaderboard();
                 }
             }
         }
@@ -90,6 +94,7 @@ public class GameController
             }
             else if (input > 0 && input <= currentLocation.Interactables.Count)
             {
+                GameModel.Score += 1;
                 Item item = currentLocation.Interactables[input - 1];
                 GameModel.SelectedItem = item;
                 GameModel.CurrentGameState = GameState.ItemInfo;
@@ -120,6 +125,11 @@ public class GameController
             if (input > 0 && input <= currentLocation.Characters.Count)
             {
                 Character character = currentLocation.Characters[input - 1];
+                if (!character.visited)
+                {
+                    character.visited = true;
+                    GameModel.Score += 1;
+                }
                 GameModel.CharacterModel.selectedCharacter = character;
                 HandleTalk(character.Questions, character.Name);
             }
@@ -178,6 +188,13 @@ public class GameController
                 Console.ReadKey(true);
             }
         }
+    }
+
+    private void HandleLeaderboard()
+    {
+        GameModel.CurrentGameState = GameState.Leaderboard;
+        onChange();
+        Console.ReadKey(true);
     }
 
     private int SelectOptionWithArrows(int OptionsAmount)

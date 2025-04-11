@@ -1,5 +1,6 @@
 public class GameModel
 {
+    public int Score { get; set; }
     public GameState CurrentGameState { get; set; }
     public int SelectedOption { get; set; }
     public Item SelectedItem { get; set; }
@@ -9,6 +10,7 @@ public class GameModel
     public Detective Detective { get; set; }
     public LocationModel LocationModel { get; set; }
     public CharacterModel CharacterModel { get; set; }
+    public SupabaseFetcher SupabaseFetcher { get; set; }
 
 
     public GameModel()

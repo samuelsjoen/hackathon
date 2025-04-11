@@ -8,5 +8,6 @@ public enum GameState
     SelectCharacterMenu,
     QuestionMenu,
     Answer,
-    InventoryMenu
+    InventoryMenu,
+    Leaderboard,
 }

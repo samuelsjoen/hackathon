@@ -4,10 +4,13 @@ public class Item
     public string Description { get;}
     public bool Obtainable { get;}
 
-    public Item(string name, string description, bool obtainable)
+    public string Image { get; }
+
+    public Item(string name, string description, bool obtainable, string image)
     {
         this.Name = name;
         this.Description = description;
         this.Obtainable = obtainable;
+        this.Image = image;
     }
 }
