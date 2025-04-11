@@ -30,7 +30,7 @@ public class GameController
                 GameModel.CurrentGameState = GameState.ToDoMenu;
                 onChange();
 
-                int input = SelectOptionWithArrows(3);
+                int input = SelectOptionWithArrows(4);
 
                 if (input == 0)
                 {
@@ -43,6 +43,10 @@ public class GameController
                 else if (input == 2 && currentLocation.Characters != null && currentLocation.Characters.Count > 0)
                 {
                     HandleCharacters(currentLocation);
+                }
+                else if (input == 3)
+                {
+                    HandleInventory();
                 }
             }
         }
@@ -87,14 +91,15 @@ public class GameController
             else if (input > 0 && input <= currentLocation.Interactables.Count)
             {
                 Item item = currentLocation.Interactables[input - 1];
+                GameModel.SelectedItem = item;
+                GameModel.CurrentGameState = GameState.ItemInfo;
+                onChange();
                 if (item.Obtainable)
                 {
                     GameModel.Detective.Inventory.Add(item);
                     GameModel.LocationModel.CurrentLocation.Interactables.Remove(item);
                 }
-                GameModel.SelectedItem = item;
-                GameModel.CurrentGameState = GameState.ItemInfo;
-                onChange();
+
                 Console.ReadKey(true);
             }
         }
@@ -106,7 +111,7 @@ public class GameController
         {
             GameModel.CurrentGameState = GameState.SelectCharacterMenu;
             onChange();
-        
+
             int input = SelectOptionWithArrows(currentLocation.Characters.Count + 1);
             if (input == 0)
             {
@@ -148,7 +153,34 @@ public class GameController
         }
     }
 
-    public int SelectOptionWithArrows(int OptionsAmount)
+    private void HandleInventory()
+    {
+        while (true)
+        {
+            GameModel.CurrentGameState = GameState.InventoryMenu;
+            onChange();
+            if (GameModel.Detective.Inventory.Count == 0)
+            {
+                Console.ReadKey(true);
+                break;
+            }
+            int input = SelectOptionWithArrows(GameModel.Detective.Inventory.Count + 1);
+            if (input == 0)
+            {
+                break;
+            }
+            else if (input > 0 && input <= GameModel.Detective.Inventory.Count)
+            {
+                Item item = GameModel.Detective.Inventory[input - 1];
+                GameModel.SelectedItem = item;
+                GameModel.CurrentGameState = GameState.ItemInfo;
+                onChange();
+                Console.ReadKey(true);
+            }
+        }
+    }
+
+    private int SelectOptionWithArrows(int OptionsAmount)
     {
         int selectedIndex = 0;
         GameModel.SelectedOption = 0;

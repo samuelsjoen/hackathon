@@ -49,6 +49,9 @@ public class GameView
             case GameState.Answer:
                 PrintAnswer();
                 break;
+            case GameState.InventoryMenu:
+                PrintInventoryMenu();
+                break;
             default:
                 Console.WriteLine("Unknown state. Please restart game.");
                 break;
@@ -112,9 +115,10 @@ you opened a private practice as a detective in the region's capital.
         List<string> options = new List<string> {
                     "Move to another location",
                     "Examine the area",
-                    "Talk to characters"
+                    "Talk to characters",
+                    "Open inventory",
                 };
-        PrintSelectedOption(options); 
+        PrintSelectedOption(options);
     }
 
     private void PrintMoveMenu()
@@ -125,7 +129,7 @@ you opened a private practice as a detective in the region's capital.
         List<Location> locations = CurrentLocation.ConnectedLocations;
         foreach (Location location in locations)
         {
-           options.Add(location.Name);
+            options.Add(location.Name);
         }
         PrintSelectedOption(options);
     }
@@ -152,7 +156,7 @@ you opened a private practice as a detective in the region's capital.
     {
         Console.WriteLine(CurrentLocation.Image);
         Console.WriteLine(GameModel.SelectedItem.Description + "\n");
-        if (GameModel.SelectedItem.Obtainable)
+        if (GameModel.SelectedItem.Obtainable && !GameModel.Detective.Inventory.Contains(GameModel.SelectedItem))
         {
             Console.WriteLine($"You have obtained {GameModel.SelectedItem.Name}.\n");
         }
@@ -205,6 +209,24 @@ you opened a private practice as a detective in the region's capital.
                 Console.WriteLine($"  {options[i]}");
             }
         }
+    }
+
+    private void PrintInventoryMenu()
+    {
+        Console.WriteLine(CurrentLocation.Image);
+        Console.WriteLine("Your inventory:\n");
+        if (GameModel.Detective.Inventory.Count == 0)
+        {
+            Console.WriteLine("Your inventory is empty.\n");
+            Console.WriteLine("Press any key to continue...\n");
+            return;
+        }
+        List<string> options = new List<string>() { "Cancel" };
+        foreach (Item item in GameModel.Detective.Inventory)
+        {
+            options.Add(item.Name);
+        }
+        PrintSelectedOption(options);
     }
 }
 

@@ -7,5 +7,6 @@ public enum GameState
     ItemInfo,
     SelectCharacterMenu,
     QuestionMenu,
-    Answer
+    Answer,
+    InventoryMenu
 }
